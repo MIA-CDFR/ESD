@@ -1,6 +1,0 @@
-
-
-
-
-Verificar que a uniformização do campo datahora nas tabelas base está OK.
-E depois validar 5_transformacao_aplica_TAS.
