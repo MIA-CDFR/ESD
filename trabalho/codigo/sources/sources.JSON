@@ -1,0 +1,34 @@
+{
+    "ficheiros": [
+        {
+            "nome": "source_comentarios.csv",
+            "collection": "file_csv_comentarios"
+        }
+    ],
+    "ficheiro_vendas": [
+        {
+            "nome": "source_vendas.csv",
+            "collection": "vendas"
+        }
+    ],
+    "feeds_rss": [
+        {
+            "nome": "Wine spectator",
+            "url": "https://www.winespectator.com/rss/rss",
+            "idioma": "EN",
+            "collection": "feeds_rss_wine_inspector"
+        },
+        {
+            "nome": "Decanter",
+            "url": "https://www.decanter.com/wine-news/feed",
+            "idioma": "EN",
+            "collection": "feeds_rss_decanter"
+        },
+        {
+            "nome": "Amarante vinhos",
+            "url": "https://www.amarante-vinhos.com.br/rss/all.xml",
+            "idioma": "PT",
+            "collection": "feeds_rss_amarante_vinhos"
+        }
+    ]
+}
