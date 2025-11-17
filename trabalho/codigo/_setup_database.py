@@ -50,6 +50,7 @@ SQL_SCHEMA = r"""
 
 -- Drop em ordem para evitar FKs/dep. (é ambiente de dev/demo)
 DROP TABLE IF EXISTS users                              CASCADE;
+DROP TABLE IF EXISTS users_email                        CASCADE;
 DROP TABLE IF EXISTS feeds_rss                          CASCADE;
 DROP TABLE IF EXISTS feeds_rss_processada               CASCADE;
 DROP TABLE IF EXISTS file_csv_comentarios               CASCADE;
@@ -64,7 +65,17 @@ DROP TABLE IF EXISTS sentimentos                        CASCADE;
 CREATE TABLE users (
     userid                  SERIAL PRIMARY KEY,
     nome                    TEXT,
-    email                   TEXT
+    email                   TEXT,
+    data_nascimento         TIMESTAMP WITHOUT TIME ZONE,
+    genero                  TEXT,
+    regiao                  TEXT
+);
+
+-- USERS
+CREATE TABLE users_email (
+    userid                  SERIAL PRIMARY KEY,
+    email                   TEXT,
+    creationdate            TIMESTAMP WITHOUT TIME ZONE
 );
 
 INSERT INTO users (nome, email) VALUES
@@ -72,6 +83,13 @@ INSERT INTO users (nome, email) VALUES
   ('Rui','rmmmrodrigues@gmail.com'),
   ('Filipa','filipapereira306@gmail.com'),
   ('Diego','diegojeffersonms@gmail.com');
+
+INSERT INTO users_email (userid, email) VALUES
+  (1,'carlos@gmail.com'),
+  (2,'rmmmrodrigues@gmail.com'),
+  (3,'filipapereira306@gmail.com'),
+  (4,'diegojeffersonms@gmail.com'),
+  (1,'ccj.gmr@gmail.com');
 
 -- FEEDS
 CREATE TABLE feeds_rss (
