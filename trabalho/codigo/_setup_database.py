@@ -44,10 +44,6 @@ CREATE DATABASE esd_wine
 """
 
 SQL_SCHEMA = r"""
--- =========================================================
--- ESD / WINE — ESQUEMA COMPLETO (PostgreSQL)
--- =========================================================
-
 -- Drop em ordem para evitar FKs/dep. (é ambiente de dev/demo)
 DROP TABLE IF EXISTS users                              CASCADE;
 DROP TABLE IF EXISTS users_email                        CASCADE;
@@ -73,7 +69,7 @@ CREATE TABLE users (
 
 -- USERS
 CREATE TABLE users_email (
-    userid                  SERIAL PRIMARY KEY,
+    userid                  INTEGER,
     email                   TEXT,
     creationdate            TIMESTAMP WITHOUT TIME ZONE
 );
@@ -111,37 +107,12 @@ CREATE TABLE product (
     safra                   TEXT
 );
 
-INSERT INTO product (product_ID, description, regiao, safra) VALUES
- (Barca Velha Tinto, Douro, 2011),
- (Pêra Manca Tinto, Alentejo, 2015),
- (Château Margaux Premier Cru, Bordeaux, 2015),
- (Quinta do Vale Meão Tinto, Douro, 2018),
- (Esporão Reserva Branco, Alentejo, 2022),
- (Vega Sicilia Único, Ribera del Duero, 2012),
- (Chryseia Tinto, Douro, 2020),
- (Sassicaia Tenuta San Guido, Toscana, 2018),
- (Quinta dos Carvalhais Encruzado Branco, Dão, 2021),
- (Opus One, Califórnia, 2019),
- (Vinho do Porto Vintage Taylor's, Douro, 2017),
- (Vinha Grande Tinto, Douro, 2020),
- (Quinta da Leda Tinto, Douro, 2019),
- (Mouchão Tonel 3-4 Tinto, Alentejo, 2013),
- (Tignanello Marchesi Antinori, Toscana, 2020),
- (Soalheiro Alvarinho, Vinho Verde, 2023),
- (Herdade do Peso Reserva Tinto, Alentejo, 2019),
- (Catena Zapata Adrianna Vineyard Malbec, Mendoza, Argentina, 2019),
- (Quinta de Foz de Arouce Santa Maria Tinto, Beira Atlântico, 2019),
- (Niepoort Redoma Reserva Branco, Douro, 2020),
- (Pintas Tinto, Douro, 2020),
- (Penfolds Grange Shiraz, South Australia, 2017),
- (Alvarinho Soalheiro Primeiras Vinhas, Vinho Verde, 2020),
- (Quinta do Crasto Reserva Old Vines Tinto, Douro, 2019),
- (Domaine de la Romanée-Conti, Borgonha, França, 2015),
- (Marquês de Borba Reserva Tinto, Alentejo, 2021),
- (Quinta das Bágeiras Garrafeira Tinto, Bairrada, 2019),
- (Champagne Dom Pérignon Vintage, Champagne, França, 2013),
- (Tapada de Coelheiros Garrafeira, Alentejo, 2017),
- (Riesling Spätlese Egon Müller, Mosel, Alemanha, 2021);
+INSERT INTO product (product_id, description, regiao, safra) VALUES
+ (1,'Barca Velha Tinto', 'Douro', '2011'),
+ (2,'Pêra Manca Tinto', 'Alentejo', '2015'),
+ (3,'Château Margaux Premier Cru', 'Bordeaux', '2015'),
+ (4,'Tapada de Coelheiros Garrafeira', 'Alentejo', '2017'),
+ (5,'Riesling Spätlese Egon Müller', 'Mosel', '2021');
 
 -- FEEDS
 CREATE TABLE feeds_rss (
