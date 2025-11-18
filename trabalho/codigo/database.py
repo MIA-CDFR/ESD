@@ -271,37 +271,6 @@ def save_toDatabase_WebsiteFeedback(df, table_name, batch_size=config.DATABASE_B
         # Reutilizamos a função para fechar a conexão
         close_database(conn)
 
-def get_userid_by_email(database, email: str) -> int:
-    """
-    Procura o utilizador pelo email na tabela 'users'.
-    Se existir, retorna o userid (int).
-    Se não existir, retorna 0.
-    """
-    if not email:
-        return 0
-
-    conn = database.connect_database()
-    if conn is None:
-        print("Falha na conexão à base de dados")
-        return 0
-
-    try:
-        with closing(conn.cursor()) as cur:
-            cur.execute(sql.SQL("""
-                SELECT userid
-                  FROM users
-                 WHERE email = %s
-                 LIMIT 1
-            """), (email,))
-            row = cur.fetchone()
-            return row[0] if row else 0
-
-    except Exception as e:
-        print(f"[get_userid_by_email] Erro: {e}")
-        return 0
-    finally:
-        database.close_database(conn)
-
 def save_toDatabase_Vendas(df, table_name, batch_size=config.DATABASE_BATCH_SIZE_FOR_INSERT):
 
     conn = connect_database()
@@ -405,11 +374,7 @@ def get_userid_by_email(database, email: str) -> int:
     finally:
         database.close_database(conn)
 
-
-
-
-
-if __name__ == "__main__":
-    print(f"get_userid_by_email(database, \"ccj.gmr@gmail.com\") = {get_userid_by_email(database, "ccj.gmr@gmail.com")}")
-    print(f"get_userid_by_email(database, \"ccj.gmr.aaa@gmail.com\") = {get_userid_by_email(database, "ccj.gmr.aaa@gmail.com")}")
-    print(f"get_userid_by_email(database, \"rmmmrodrigues@gmail.com\") = {get_userid_by_email(database, "rmmmrodrigues@gmail.com")}")
+# if __name__ == "__main__":
+#     print(f"get_userid_by_email(database, \"ccj.gmr@gmail.com\") = {get_userid_by_email(database, "ccj.gmr@gmail.com")}")
+#     print(f"get_userid_by_email(database, \"ccj.gmr.aaa@gmail.com\") = {get_userid_by_email(database, "ccj.gmr.aaa@gmail.com")}")
+#     print(f"get_userid_by_email(database, \"rmmmrodrigues@gmail.com\") = {get_userid_by_email(database, "rmmmrodrigues@gmail.com")}")

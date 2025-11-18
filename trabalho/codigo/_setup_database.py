@@ -48,6 +48,17 @@ SQL_SCHEMA = r"""
 -- ESD / WINE — ESQUEMA COMPLETO (PostgreSQL)
 -- =========================================================
 
+@ CRIAR TABELAS:
+- payment_method
+- product (ID, nome, regiao, safra/ano, castas_ID)
+- castas (ID, casta), touriga nacional, Syrah, Pinot Noir, Cabernet Sauvignon, Arinto, Alvarinho, Moscatel
+- source ?
+
+
+
+
+
+
 -- Drop em ordem para evitar FKs/dep. (é ambiente de dev/demo)
 DROP TABLE IF EXISTS users                              CASCADE;
 DROP TABLE IF EXISTS users_email                        CASCADE;
