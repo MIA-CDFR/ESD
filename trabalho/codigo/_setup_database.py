@@ -48,17 +48,6 @@ SQL_SCHEMA = r"""
 -- ESD / WINE — ESQUEMA COMPLETO (PostgreSQL)
 -- =========================================================
 
-@ CRIAR TABELAS:
-- payment_method
-- product (ID, nome, regiao, safra/ano, castas_ID)
-- castas (ID, casta), touriga nacional, Syrah, Pinot Noir, Cabernet Sauvignon, Arinto, Alvarinho, Moscatel
-- source ?
-
-
-
-
-
-
 -- Drop em ordem para evitar FKs/dep. (é ambiente de dev/demo)
 DROP TABLE IF EXISTS users                              CASCADE;
 DROP TABLE IF EXISTS users_email                        CASCADE;
@@ -101,6 +90,58 @@ INSERT INTO users_email (userid, email) VALUES
   (3,'filipapereira306@gmail.com'),
   (4,'diegojeffersonms@gmail.com'),
   (1,'ccj.gmr@gmail.com');
+
+-- PAYMENT_METHOD
+CREATE TABLE payment_method (
+    payment_method_id       SERIAL PRIMARY KEY,
+    payment_method          TEXT
+);
+
+INSERT INTO payment_method (payment_method_id, payment_method) VALUES
+  (1,'MULTIBANCO'),
+  (2,'TANSFERÊNCIA BANCÁRIA'),
+  (3,'CARTÃO DÉBITO'),
+  (4,'CARTÃO CRÉDITO');
+
+-- PRODUCT
+CREATE TABLE product (
+    product_id              SERIAL PRIMARY KEY,
+    description             TEXT,
+    regiao                  TEXT,
+    safra                   TEXT
+);
+
+INSERT INTO product (product_ID, description, regiao, safra) VALUES
+ (Barca Velha Tinto, Douro, 2011),
+ (Pêra Manca Tinto, Alentejo, 2015),
+ (Château Margaux Premier Cru, Bordeaux, 2015),
+ (Quinta do Vale Meão Tinto, Douro, 2018),
+ (Esporão Reserva Branco, Alentejo, 2022),
+ (Vega Sicilia Único, Ribera del Duero, 2012),
+ (Chryseia Tinto, Douro, 2020),
+ (Sassicaia Tenuta San Guido, Toscana, 2018),
+ (Quinta dos Carvalhais Encruzado Branco, Dão, 2021),
+ (Opus One, Califórnia, 2019),
+ (Vinho do Porto Vintage Taylor's, Douro, 2017),
+ (Vinha Grande Tinto, Douro, 2020),
+ (Quinta da Leda Tinto, Douro, 2019),
+ (Mouchão Tonel 3-4 Tinto, Alentejo, 2013),
+ (Tignanello Marchesi Antinori, Toscana, 2020),
+ (Soalheiro Alvarinho, Vinho Verde, 2023),
+ (Herdade do Peso Reserva Tinto, Alentejo, 2019),
+ (Catena Zapata Adrianna Vineyard Malbec, Mendoza, Argentina, 2019),
+ (Quinta de Foz de Arouce Santa Maria Tinto, Beira Atlântico, 2019),
+ (Niepoort Redoma Reserva Branco, Douro, 2020),
+ (Pintas Tinto, Douro, 2020),
+ (Penfolds Grange Shiraz, South Australia, 2017),
+ (Alvarinho Soalheiro Primeiras Vinhas, Vinho Verde, 2020),
+ (Quinta do Crasto Reserva Old Vines Tinto, Douro, 2019),
+ (Domaine de la Romanée-Conti, Borgonha, França, 2015),
+ (Marquês de Borba Reserva Tinto, Alentejo, 2021),
+ (Quinta das Bágeiras Garrafeira Tinto, Bairrada, 2019),
+ (Champagne Dom Pérignon Vintage, Champagne, França, 2013),
+ (Tapada de Coelheiros Garrafeira, Alentejo, 2017),
+ (Riesling Spätlese Egon Müller, Mosel, Alemanha, 2021);
 
 -- FEEDS
 CREATE TABLE feeds_rss (
