@@ -54,6 +54,8 @@ def close_database(conn):
 # ===============================================
 
 def save_toDatabase(df, table_name):
+    print(f"Cheguei a database.py, para save_toDatabase")      # APAGAR
+
     if table_name == config.DATABASE_TABLENAME_FEEDS_RSS:
         save_toDatabase_FeedsRSS(df, table_name)
     elif table_name == config.DATABASE_TABLENAME_FILE_CSV:
@@ -148,16 +150,16 @@ def save_toDatabase_FilesCSV(df, table_name, batch_size=config.DATABASE_BATCH_SI
         total_inseridos = 0
         
         # Colunas que vamos inserir (SEM recordid e created_at - são automáticos)
-        colunas = "commentid, userid, productid, storeid, datahora, texto"
+        colunas = "commentid, utilizador_id, produto_id, loja_id, datahora, texto"
 
         """
         -- COMENTÁRIOS (CSV)
         CREATE TABLE file_csv_comentarios (
             id                      SERIAL PRIMARY KEY,
             commentid               INTEGER,
-            userid                  INTEGER,
-            productid               INTEGER,
-            storeid                 INTEGER,
+            utilizador_id           INTEGER,
+            produto_id              INTEGER,
+            loja_id                 INTEGER,
             datahora                TIMESTAMP WITHOUT TIME ZONE,
             texto                   TEXT,
             extracted_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -177,9 +179,9 @@ def save_toDatabase_FilesCSV(df, table_name, batch_size=config.DATABASE_BATCH_SI
                 valores_list.append("(%s, %s, %s, %s, %s, %s)")
                 params.extend([
                     row['commentid'],
-                    row['userid'],
-                    row['productid'],
-                    row['storeid'],
+                    row['utilizador_id'],
+                    row['produto_id'],
+                    row['loja_id'],
                     row['datahora'],
                     row['texto']
                 ])
@@ -281,23 +283,31 @@ def save_toDatabase_Vendas(df, table_name, batch_size=config.DATABASE_BATCH_SIZE
         cursor = conn.cursor()
 
         total_inseridos = 0
-        
+    
         # Colunas que vamos inserir (SEM recordid e created_at - são automáticos)
-        colunas = "userid, datahora, storeid, productid, quantity, unit_value, payment_method, comentario"
+        colunas = "utilizador_id, datahora, loja_id, produto_id, quantidade, valor_unitario, metodo_pagamento_id, comentario"
 
         """
-        -- VENDAS
-        CREATE TABLE vendas (
-            id                      SERIAL PRIMARY KEY,
-            userid                  INTEGER,
-            datahora                TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-            storeid                 INTEGER,
-            productid               INTEGER,
-            quantity                INTEGER,
-            unit_value              DOUBLE PRECISION,
-            payment_method          TEXT,
+        -- VENDA
+        CREATE TABLE venda (
+            venda_id                SERIAL PRIMARY KEY,
+            utilizador_id           INTEGER,
+            datahora                TIMESTAMP WITHOUT TIME ZONE,
+            loja_id                 INTEGER,
+            produto_id              INTEGER,
+            quantidade              INTEGER,
+            valor_unitario          DOUBLE PRECISION,
+            metodo_pagamento_id     INTEGER,
             comentario              TEXT,
-            extracted               BOOLEAN DEFAULT FALSE
+            extracted               BOOLEAN DEFAULT FALSE,        
+            CONSTRAINT utilizador_fkey FOREIGN KEY (utilizador_id)
+                REFERENCES utilizador (utilizador_id) MATCH SIMPLE,
+            CONSTRAINT loja_fkey FOREIGN KEY (loja_id)
+                REFERENCES loja (loja_id) MATCH SIMPLE,
+            CONSTRAINT produto_fkey FOREIGN KEY (produto_id)
+                REFERENCES produto (produto_id) MATCH SIMPLE,
+            CONSTRAINT metodo_pagamento_fkey FOREIGN KEY (metodo_pagamento_id)
+                REFERENCES metodo_pagamento (metodo_pagamento_id) MATCH SIMPLE
         );
         """
 
@@ -309,16 +319,17 @@ def save_toDatabase_Vendas(df, table_name, batch_size=config.DATABASE_BATCH_SIZE
             params = []
             
             for index, row in batch.iterrows():
+                print(f"row['metodo_pagamento_id']: {row['metodo_pagamento_id']}")      # APAGAR
                 # 8 placeholders para as 8 colunas
                 valores_list.append("(%s, %s, %s, %s, %s, %s, %s, %s)")
                 params.extend([
-                    row['userid'],
+                    row['utilizador_id'],
                     row['datahora'],
-                    row['storeid'],
-                    row['productid'],
-                    row['quantity'],
-                    row['unit_value'],
-                    row['payment_method'],
+                    row['loja_id'],
+                    row['produto_id'],
+                    row['quantidade'],
+                    row['valor_unitario'],
+                    row['metodo_pagamento_id'],
                     row['comentario']
                 ])
             
@@ -345,8 +356,8 @@ def save_toDatabase_Vendas(df, table_name, batch_size=config.DATABASE_BATCH_SIZE
 
 def get_userid_by_email(database, email: str) -> int:
     """
-    Procura o utilizador pelo email na tabela 'users'.
-    Se existir, retorna o userid (int).
+    Procura o utilizador pelo email na tabela 'utilizador'.
+    Se existir, retorna o utilizador_id (int).
     Se não existir, retorna 0.
     """
     if not email:
@@ -360,8 +371,8 @@ def get_userid_by_email(database, email: str) -> int:
     try:
         with closing(conn.cursor()) as cur:
             cur.execute(sql.SQL("""
-                SELECT userid
-                  FROM users
+                SELECT utilizador_id
+                  FROM utilizador
                  WHERE email = %s
                  LIMIT 1
             """), (email,))
@@ -373,8 +384,3 @@ def get_userid_by_email(database, email: str) -> int:
         return 0
     finally:
         database.close_database(conn)
-
-# if __name__ == "__main__":
-#     print(f"get_userid_by_email(database, \"ccj.gmr@gmail.com\") = {get_userid_by_email(database, "ccj.gmr@gmail.com")}")
-#     print(f"get_userid_by_email(database, \"ccj.gmr.aaa@gmail.com\") = {get_userid_by_email(database, "ccj.gmr.aaa@gmail.com")}")
-#     print(f"get_userid_by_email(database, \"rmmmrodrigues@gmail.com\") = {get_userid_by_email(database, "rmmmrodrigues@gmail.com")}")

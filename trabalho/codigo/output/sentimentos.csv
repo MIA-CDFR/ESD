@@ -1,4 +1,4 @@
-id,userid,text,datahora,modelo,sentimento,score,created_on
+id,utilizador_id,text,datahora,modelo,sentimento,score,created_on
 1,2,"Sabor correto, dentro do esperado.",2023-07-17 11:55:30,cardiffnlp/twitter-xlm-roberta-base-sentiment,NEUTRO,0.424377,2025-06-26 10:10:36
 2,3,"Excelente vinho, recomendo vivamente.",2023-09-18 19:13:19,cardiffnlp/twitter-xlm-roberta-base-sentiment,POSITIVO,0.79337,2025-01-01 04:13:14
 3,4,"Sabor correto, dentro do esperado.",2023-09-14 06:52:15,cardiffnlp/twitter-xlm-roberta-base-sentiment,NEUTRO,0.451992,2025-10-17 12:13:48

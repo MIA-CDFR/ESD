@@ -5,12 +5,28 @@ import database as database
 import pandas as pd
 from sqlalchemy import create_engine
 
-def exportar_sentimentos_TOCSV():
+def exportar_sentimento_TOCSV():
     uri = database.get_connection_uri()
-    
+
+    """"
+    -- SENTIMENTO
+    CREATE TABLE sentimento (
+        sentimento_id           SERIAL PRIMARY KEY,
+        utilizador_id           INTEGER,
+        text                    TEXT,       --- corresponde ao texto que foi tratado
+        datahora                TIMESTAMP WITHOUT TIME ZONE,
+        modelo                  TEXT,       --- corresponde ao modelo com que foi tratado o texto para gerar o sentimento/score
+        sentimento              TEXT,
+        score                   DOUBLE PRECISION,
+        created_on              TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT utilizador_fkey FOREIGN KEY (utilizador_id)
+            REFERENCES utilizador (utilizador_id) MATCH SIMPLE
+    );
+    """
+
     try:
         engine = create_engine(uri)
-        query = "SELECT id, userid, datahora, text, modelo, sentimento, score, created_on FROM sentimentos;"
+        query = "SELECT sentimento_id, utilizador_id, text, datahora, modelo, sentimento, score, created_on FROM sentimento;"
         df = pd.read_sql_query(query, engine)
         
         if df.empty:
@@ -27,5 +43,5 @@ def exportar_sentimentos_TOCSV():
 
 if __name__ == "__main__":
 
-    exportar_sentimentos_TOCSV()
+    exportar_sentimento_TOCSV()
 

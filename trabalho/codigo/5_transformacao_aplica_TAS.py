@@ -34,12 +34,12 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
     batch_size
 ) -> int:
     """
-    Lê registos vendas_processada.applied_tas = FALSE,
+    Lê registos venda_processada.applied_tas = FALSE,
     aplica análise de sentimento ao 'comentario'
-    e insere em sentimentos.
-    Depois marca vendas_processada.applied_tas = TRUE
+    e insere em sentimento.
+    Depois marca venda_processada.applied_tas = TRUE
 
-    Retorna: nº de registos inseridos na tabela sentimentos.
+    Retorna: nº de registos inseridos na tabela sentimento.
     """
 
     conn = database.connect_database()
@@ -52,6 +52,63 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
         with closing(conn.cursor()) as cur:
             select_cols = ["id", "r_id", campo_texto]
             
+            """
+            -- FEEDS
+            CREATE TABLE feeds_rss (
+                id                      SERIAL PRIMARY KEY,
+                fonte_nome              TEXT,
+                fonte_url               TEXT,
+                idioma                  TEXT,
+                titulo                  TEXT,
+                link                    TEXT,
+                sumario                 TEXT,
+                datahora                TIMESTAMP WITHOUT TIME ZONE,    --- = data_publicacao
+                extracted_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                processed               BOOLEAN DEFAULT FALSE
+            );
+
+            CREATE TABLE feeds_rss_processada (
+                id                      SERIAL PRIMARY KEY,
+                r_id                    INTEGER,
+                titulo                  TEXT,
+                sumario                 TEXT,
+                processed_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                applied_tas             BOOLEAN DEFAULT FALSE
+            );
+
+            -- COMENTÁRIOS (CSV)
+            CREATE TABLE file_csv_comentarios (
+                id                      SERIAL PRIMARY KEY,
+                commentid               INTEGER,
+                utilizador_id           INTEGER,
+                produto_id              INTEGER,
+                loja_id                 INTEGER,
+                datahora                TIMESTAMP WITHOUT TIME ZONE,
+                texto                   TEXT,
+                extracted_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                processed               BOOLEAN DEFAULT FALSE
+            );
+
+            CREATE TABLE file_csv_comentarios_processada (
+                id                      SERIAL PRIMARY KEY,
+                r_id                    INTEGER,
+                texto                   TEXT,
+                processed_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                applied_tas             BOOLEAN DEFAULT FALSE
+            );
+
+            -- WEBSITE FEEDBACK
+            CREATE TABLE website_feedback (
+                id                      SERIAL PRIMARY KEY,
+                object_id               TEXT,
+                email                   TEXT,
+                comentarios             TEXT,
+                classificacao           INTEGER,
+                datahora                TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,      --- = ingested_on
+                source                  TEXT DEFAULT 'website feedback',
+                extracted               BOOLEAN DEFAULT FALSE
+            );
+            """
             cur.execute(sql.SQL("""
                 SELECT {cols}
                   FROM {src}
@@ -64,7 +121,7 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
             rows = cur.fetchall()
 
         if not rows:
-            print("Não há registos por processar/aplicar TAS em vendas_processada.")
+            print(f"Não há registos por processar/aplicar TAS em {table_processada}}.")
             return 0
 
         with closing(conn.cursor()) as cur:
@@ -73,7 +130,7 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
                 rowd = {select_cols[i]: row[i] for i in range(len(select_cols))}
 
                 email = ""
-                userid = 0
+                utilizador_id = 0
 
                 # 1. Obter a data e hora atual (com fuso horário ou sem) 
                 #   Exemplo: 2025-10-31 00:05:24.130000
@@ -110,15 +167,15 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
                     if wf_email:
                         email = wf_email[0]
 
-                userid = database.get_userid_by_email(database, email)
+                utilizador_id = database.get_userid_by_email(database, email)
 
                 # Aplicar análise de sentimento
                 texto = rowd[campo_texto]
                 sentimento, score, modelo = aplica_TAS(texto)
 
-                # Colunas da tabela 'sentimentos' (ajuste conforme sua necessidade)
+                # Colunas da tabela 'sentimento' (ajuste conforme sua necessidade)
                 insert_cols = [
-                    "userid",
+                    "utilizador_id",
                     "text",
                     "datahora",
                     "modelo",
@@ -126,7 +183,7 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
                     "score"
                 ]
                 insert_vals = [
-                    userid,
+                    utilizador_id,
                     texto,
                     datahora,
                     modelo,
@@ -134,13 +191,29 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
                     score
                 ]
 
+                """
+                -- SENTIMENTO
+                CREATE TABLE sentimento (
+                    sentimento_id           SERIAL PRIMARY KEY,
+                    utilizador_id           INTEGER,
+                    text                    TEXT,       --- corresponde ao texto que foi tratado
+                    datahora                TIMESTAMP WITHOUT TIME ZONE,
+                    modelo                  TEXT,       --- corresponde ao modelo com que foi tratado o texto para gerar o sentimento/score
+                    sentimento              TEXT,
+                    score                   DOUBLE PRECISION,
+                    created_on              TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT utilizador_fkey FOREIGN KEY (utilizador_id)
+                        REFERENCES utilizador (utilizador_id) MATCH SIMPLE
+                );
+                """
+                
                 cur.execute(sql.SQL("""
                     INSERT INTO {dst} ({cols})
                     VALUES ({placeholders})
                 """).format(
-                    dst=sql.Identifier("sentimentos"),
+                    dst=sql.Identifier("sentimento"),
                     cols=sql.SQL(", ").join(map(sql.Identifier, insert_cols)),
-                    placeholders=sql.SQL(", ").join([sql.Placeholder()] * len(insert_cols))  # Corrigido
+                    placeholders=sql.SQL(", ").join([sql.Placeholder()] * len(insert_cols))
                 ), insert_vals)
 
                 # Marcar origem como processada
@@ -159,7 +232,7 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
             if buf:
                 conn.commit()
 
-        print(f"Inseridos {inseridos} registos em 'sentimentos' e marcados como extraídos em '{table_processada}'.")
+        print(f"Inseridos {inseridos} registos em 'sentimento' e marcados como extraídos em '{table_processada}'.")
         return inseridos
 
     except Exception as e:
@@ -169,19 +242,19 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
     finally:
         database.close_database(conn)
 
-def processar_vendas_processada_e_inserir_sentimento(database,
-    table: str = "vendas",
-    table_processada: str = "vendas_processada",
+def processar_venda_processada_e_inserir_sentimento(database,
+    table: str = "venda",
+    table_processada: str = "venda_processada",
     campo_texto: str = "comentario",
     batch_size: int = 100
 ) -> int:
     """
-    Lê registos vendas_processada.applied_tas = FALSE,
+    Lê registos venda_processada.applied_tas = FALSE,
     aplica análise de sentimento ao 'comentario'
-    e insere em sentimentos.
-    Depois marca vendas_processada.applied_tas = TRUE
+    e insere em sentimento.
+    Depois marca venda_processada.applied_tas = TRUE
 
-    Retorna: nº de registos inseridos na tabela sentimentos.
+    Retorna: nº de registos inseridos na tabela sentimento.
     """
 
     conn = database.connect_database()
@@ -192,7 +265,43 @@ def processar_vendas_processada_e_inserir_sentimento(database,
     inseridos = 0
     try:
         with closing(conn.cursor()) as cur:
-            select_cols = ["id", "r_id", campo_texto]
+
+            """
+            -- VENDA
+            CREATE TABLE venda (
+                venda_id                SERIAL PRIMARY KEY,
+                utilizador_id           INTEGER,
+                datahora                TIMESTAMP WITHOUT TIME ZONE,
+                loja_id                 INTEGER,
+                produto_id              INTEGER,
+                quantidade              INTEGER,
+                valor_unitario          DOUBLE PRECISION,
+                metodo_pagamento_id     INTEGER,
+                comentario              TEXT,
+                extracted               BOOLEAN DEFAULT FALSE,        
+                CONSTRAINT utilizador_fkey FOREIGN KEY (utilizador_id)
+                    REFERENCES utilizador (utilizador_id) MATCH SIMPLE,
+                CONSTRAINT loja_fkey FOREIGN KEY (loja_id)
+                    REFERENCES loja (loja_id) MATCH SIMPLE,
+                CONSTRAINT produto_fkey FOREIGN KEY (produto_id)
+                    REFERENCES produto (produto_id) MATCH SIMPLE,
+                CONSTRAINT metodo_pagamento_fkey FOREIGN KEY (metodo_pagamento_id)
+                    REFERENCES metodo_pagamento (metodo_pagamento_id) MATCH SIMPLE
+            );
+
+            -- VENDA_PROCESSADA
+            CREATE TABLE venda_processada (
+                venda_processada_id     SERIAL PRIMARY KEY,
+                venda_id                INTEGER,
+                comentario              TEXT,
+                processed_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                applied_tas             BOOLEAN DEFAULT FALSE,
+                CONSTRAINT venda_fkey FOREIGN KEY (venda_id)
+                    REFERENCES venda (venda_id) MATCH SIMPLE
+            );
+            """
+
+            select_cols = ["venda_processada_id", "venda_id", campo_texto]
             
             cur.execute(sql.SQL("""
                 SELECT {cols}
@@ -206,7 +315,7 @@ def processar_vendas_processada_e_inserir_sentimento(database,
             rows = cur.fetchall()
 
         if not rows:
-            print("Não há registos por processar/aplicar TAS em vendas_processada.")
+            print("Não há registos por processar/aplicar TAS em venda_processada.")
             return 0
 
         with closing(conn.cursor()) as cur:
@@ -214,7 +323,7 @@ def processar_vendas_processada_e_inserir_sentimento(database,
             for row in rows:
                 rowd = {select_cols[i]: row[i] for i in range(len(select_cols))}
                 
-                userid = 0           
+                utilizador_id = 0           
 
                 # 1. Obter a data e hora atual (com fuso horário ou sem) 
                 #   Exemplo: 2025-10-31 00:05:24.130000
@@ -223,31 +332,27 @@ def processar_vendas_processada_e_inserir_sentimento(database,
                 #   Exemplo: 2025-10-31 00:11:26
                 datahora = datahora.strftime("%Y-%m-%d %H:%M:%S")
 
-                # print(f"--------------------- ANTES userid = {userid}, ----- datahora = {datahora}")   APAGAR
-
-                # Vou buscar o userid, datahora na tabela vendas onde
-                #   vendas.id = vendas_processada.r_id 
+                # Vou buscar o utilizador_id, datahora na tabela venda onde
+                #   venda.venda_id = venda_processada.venda_id 
                 cur.execute("""
-                    SELECT userid, datahora
-                      FROM vendas
-                     WHERE id = %s
-                """, [rowd["r_id"]])
+                    SELECT utilizador_id, datahora
+                      FROM venda
+                     WHERE venda_id = %s
+                """, [rowd["venda_id"]])
                 
                 vnd_data = cur.fetchone()
 
                 if vnd_data:
-                    userid = vnd_data[0]
+                    utilizador_id = vnd_data[0]
                     datahora = vnd_data[1]
-
-                # print(f"--------------------- APOS userid = {userid}, ----- datahora = {datahora}")   APAGAR
-
+                
                 # Aplicar análise de sentimento
                 texto = rowd[campo_texto]
                 sentimento, score, modelo = aplica_TAS(texto)
 
-                # Colunas da tabela 'sentimentos' (ajuste conforme sua necessidade)
+                # Colunas da tabela 'sentimento' (ajuste conforme sua necessidade)
                 insert_cols = [
-                    "userid",
+                    "utilizador_id",
                     "text",
                     "datahora",
                     "modelo",
@@ -255,7 +360,7 @@ def processar_vendas_processada_e_inserir_sentimento(database,
                     "score"
                 ]
                 insert_vals = [
-                    userid,
+                    utilizador_id,
                     texto,
                     datahora,
                     modelo,
@@ -263,11 +368,27 @@ def processar_vendas_processada_e_inserir_sentimento(database,
                     score
                 ]
 
+                """
+                -- SENTIMENTO
+                CREATE TABLE sentimento (
+                    sentimento_id           SERIAL PRIMARY KEY,
+                    utilizador_id           INTEGER,
+                    text                    TEXT,       --- corresponde ao texto que foi tratado
+                    datahora                TIMESTAMP WITHOUT TIME ZONE,
+                    modelo                  TEXT,       --- corresponde ao modelo com que foi tratado o texto para gerar o sentimento/score
+                    sentimento              TEXT,
+                    score                   DOUBLE PRECISION,
+                    created_on              TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT utilizador_fkey FOREIGN KEY (utilizador_id)
+                        REFERENCES utilizador (utilizador_id) MATCH SIMPLE
+                );
+                """
+
                 cur.execute(sql.SQL("""
                     INSERT INTO {dst} ({cols})
                     VALUES ({placeholders})
                 """).format(
-                    dst=sql.Identifier("sentimentos"),
+                    dst=sql.Identifier("sentimento"),
                     cols=sql.SQL(", ").join(map(sql.Identifier, insert_cols)),
                     placeholders=sql.SQL(", ").join([sql.Placeholder()] * len(insert_cols))  # Corrigido
                 ), insert_vals)
@@ -276,8 +397,8 @@ def processar_vendas_processada_e_inserir_sentimento(database,
                 cur.execute(sql.SQL("""
                     UPDATE {src}
                        SET applied_tas = true
-                     WHERE id = %s
-                """).format(src=sql.Identifier(table_processada)), [rowd["id"]])
+                     WHERE venda_id = %s
+                """).format(src=sql.Identifier(table_processada)), [rowd["venda_id"]])
 
                 inseridos += 1
                 buf += 1
@@ -288,7 +409,7 @@ def processar_vendas_processada_e_inserir_sentimento(database,
             if buf:
                 conn.commit()
 
-        print(f"Inseridos {inseridos} registos em 'sentimentos' e marcados como extraídos em '{table_processada}'.")
+        print(f"Inseridos {inseridos} registos em 'sentimento' e marcados como extraídos em '{table_processada}'.")
         return inseridos
 
     except Exception as e:
@@ -325,10 +446,10 @@ if __name__ == "__main__":
         batch_size=100
     )
 
-    processar_vendas_processada_e_inserir_sentimento(
+    processar_venda_processada_e_inserir_sentimento(
         database,
-        table="vendas",
-        table_processada="vendas_processada",
+        table="venda",
+        table_processada="venda_processada",
         campo_texto="comentario",
         batch_size=100
     )

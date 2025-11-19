@@ -16,7 +16,7 @@ MONGO_URI = mongo.MONGO_URI
 DB_NAME = mongo.DB_NAME
 
 def extrair_vendas(source):
-    """Faz a leitura dos dados (vendas CSV) e a inserção na base dados Postgres."""
+    """Faz a leitura dos dados (source_vendas CSV) e a inserção na base dados Postgres."""
     
     try:
         # Conexão ao MongoDB

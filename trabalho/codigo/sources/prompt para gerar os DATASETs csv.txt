@@ -65,13 +65,13 @@ Preciso de um conjunto de datasets para aplicar um trabalho do mestrado, onde te
 		comentario
 		
 	Exemplo:
-	vendaid,userid,datahora,storeid,productid,quantity,unit_value,payment_method,comentario
-	1,1,2024-09-17 00:14:46,1,12,12,59.47,Transferência,"Excelente vinho, recomendo vivamente!"
-	2,1,2024-08-07 17:26:54,1,2,2,55.49,MB Way,Demasiado ácido para o meu gosto.
-	3,4,2023-10-23 19:49:19,5,3,5,45.18,Transferência,Esperava mais deste vinho.
-	4,5,2024-06-18 03:45:29,6,7,3,48.44,MB Way,Boa relação qualidade/preço.
-	5,8,2024-10-12 22:13:00,10,7,2,11.40,Transferência,"Muito agradável ao paladar, aroma intenso."
-	6,12,2025-02-17 07:11:10,5,8,5,48.15,Cartão,"Um vinho simples, ideal para o dia-a-dia."
+	venda_id,utilizador_id,datahora,loja_id,produto_id,quantidade,valor_unitario,metodo_pagamento_id,comentario
+	1,1,2024-09-17 00:14:46,1,12,12,59.47,1,"Excelente vinho, recomendo vivamente!"
+	2,1,2024-08-07 17:26:54,1,2,2,55.49,2,Demasiado ácido para o meu gosto.
+	3,4,2023-10-23 19:49:19,5,3,5,45.18,1,Esperava mais deste vinho.
+	4,5,2024-06-18 03:45:29,6,7,3,48.44,2,Boa relação qualidade/preço.
+	5,8,2024-10-12 22:13:00,10,7,2,11.40,1,"Muito agradável ao paladar, aroma intenso."
+	6,12,2025-02-17 07:11:10,5,8,5,48.15,3,"Um vinho simples, ideal para o dia-a-dia."
 
    Quero 1000 registos.
    

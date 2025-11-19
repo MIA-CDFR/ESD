@@ -363,9 +363,9 @@ def processar_file_csv_comentarios_e_inserir_processada(database,
     CREATE TABLE file_csv_comentarios (
         id                      SERIAL PRIMARY KEY,
         commentid               INTEGER,
-        userid                  INTEGER,
-        productid               INTEGER,
-        storeid                 INTEGER,
+        utilizador_id           INTEGER,
+        produto_id              INTEGER,
+        loja_id                 INTEGER,
         datahora                TIMESTAMP WITHOUT TIME ZONE,
         texto                   TEXT,
         extracted_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -598,19 +598,19 @@ def processar_website_feedback_e_inserir_processada(
     finally:
         database.close_database(conn)
 
-def processar_vendas_e_inserir_processada(
+def processar_venda_e_inserir_processada(
     database,
-    table_src: str = "vendas",
-    table_dst: str = "vendas_processada",
+    table_src: str = "venda",
+    table_dst: str = "venda_processada",
     campo_texto: str = "comentario",
     batch_size: int = 100
 ) -> int:
     
     """
-    Lê registos vendas.extracted = FALSE,
+    Lê registos venda.extracted = FALSE,
         processa 'comentario' (10 passos)
-        e insere em vendas_processada.
-    Depois marca a vendas.extracted = true
+        e insere em venda_processada.
+    Depois marca a venda.extracted = true
 
     Retorna: nº de registos inseridos na tabela processada.
     """
@@ -621,23 +621,23 @@ def processar_vendas_e_inserir_processada(
         return 0
 
     """	
-    -- VENDAS
-    CREATE TABLE vendas (
-        id                      SERIAL PRIMARY KEY,
-        userid                  INTEGER,
+    -- VENDA
+    CREATE TABLE venda (
+        venda_id                SERIAL PRIMARY KEY,
+        utilizador_id           INTEGER,
         datahora                TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-        storeid                 INTEGER,
-        productid               INTEGER,
-        quantity                INTEGER,
-        unit_value              DOUBLE PRECISION,
-        payment_method          TEXT,
+        loja_id                 INTEGER,
+        produto_id              INTEGER,
+        quantidade              INTEGER,
+        valor_unitario          DOUBLE PRECISION,
+        metodo_pagamento_id     TEXT,
         comentario              TEXT,
         extracted               BOOLEAN DEFAULT FALSE
     );
 
-    CREATE TABLE vendas_processada (
-        id                      SERIAL PRIMARY KEY,
-        r_id                    INTEGER,
+    CREATE TABLE venda_processada (
+        venda_processada_id     SERIAL PRIMARY KEY,
+        venda_id                INTEGER,
         comentario_processado   TEXT,
         processed_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         applied_tas             BOOLEAN DEFAULT FALSE
@@ -649,7 +649,7 @@ def processar_vendas_e_inserir_processada(
         with closing(conn.cursor()) as cur:
             
             select_cols = [
-                "id",
+                "venda_id",
                 campo_texto
             ]
 
@@ -657,7 +657,7 @@ def processar_vendas_e_inserir_processada(
                 SELECT {cols}
                   FROM {src}
                  WHERE extracted = false
-                 ORDER BY id ASC
+                 ORDER BY venda_id ASC
             """).format(
                 cols=sql.SQL(", ").join(map(sql.Identifier, select_cols)),
                 src=sql.Identifier(table_src)
@@ -665,7 +665,7 @@ def processar_vendas_e_inserir_processada(
             rows = cur.fetchall()
 
         if not rows:
-            print("Não há registos por extrair/processar em vendas.")
+            print("Não há registos por extrair/processar em venda.")
             return 0
 
         with closing(conn.cursor()) as cur:
@@ -677,11 +677,11 @@ def processar_vendas_e_inserir_processada(
                 comentario_proc, idioma_detectado = process_text_pipeline(rowd.get(campo_texto))
 
                 """	
-                -- VENDAS
+                -- VENDA
 
-                CREATE TABLE vendas_processada (
-                    id                      SERIAL PRIMARY KEY,
-                    r_id                    INTEGER,
+                CREATE TABLE venda_processada (
+                    venda_processada_id     SERIAL PRIMARY KEY,
+                    venda_id                INTEGER,
                     comentario              TEXT,
                     processed_on            TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                     applied_tas             BOOLEAN DEFAULT FALSE
@@ -689,11 +689,11 @@ def processar_vendas_e_inserir_processada(
                 """
                 
                 insert_cols = [
-                    "r_id",
+                    "venda_id",
                     campo_texto
                 ]
                 insert_vals = [
-                    rowd["id"],
+                    rowd["venda_id"],
                     comentario_proc
                 ]
 
@@ -710,8 +710,8 @@ def processar_vendas_e_inserir_processada(
                 cur.execute(sql.SQL("""
                     UPDATE {src}
                        SET extracted = true
-                     WHERE id = %s
-                """).format(src=sql.Identifier(table_src)), [rowd["id"]])
+                     WHERE venda_id = %s
+                """).format(src=sql.Identifier(table_src)), [rowd["venda_id"]])
 
                 inseridos += 1
                 buf += 1
@@ -759,10 +759,10 @@ if __name__ == "__main__":
         batch_size=100
     )
 
-    processar_vendas_e_inserir_processada(
+    processar_venda_e_inserir_processada(
         database,
-        table_src="vendas",
-        table_dst="vendas_processada",
+        table_src="venda",
+        table_dst="venda_processada",
         campo_texto="comentario",
         batch_size=100
     )
