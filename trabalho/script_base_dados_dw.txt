@@ -1,0 +1,89 @@
+CREATE DATABASE esd_wine_dw
+    WITH
+    OWNER = local
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'en_US.utf8'
+    LC_CTYPE = 'en_US.utf8'
+    LOCALE_PROVIDER = 'libc'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+	
+CREATE TABLE IF NOT EXISTS dim_date (
+    date_key            INTEGER         NOT NULL PRIMARY KEY,
+    dia                 INTEGER         NOT NULL,
+    dia_da_semana       INTEGER         NOT NULL,  -- 1=Domingo . 7=Sábado
+    mes                 INTEGER         NOT NULL,
+    nome_do_mes         VARCHAR(20)     NOT NULL,
+    semestre            INTEGER         NOT NULL,  -- 1 ou 2
+    ano                 INTEGER         NOT NULL,
+    flag_feriado        BOOLEAN         NOT NULL DEFAULT FALSE,
+    flag_fim_de_semana  BOOLEAN         NOT NULL DEFAULT FALSE,
+    flag_dia_de_semana  BOOLEAN         NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS dim_utilizador (
+    utilizador_key         INTEGER         NOT NULL PRIMARY KEY,
+    nome                VARCHAR(200)    NOT NULL,
+    regiao              VARCHAR(100),
+    data_nascimento     DATE,
+    sexo                CHAR(1)
+);
+
+CREATE TABLE IF NOT EXISTS dim_produto (
+    produto_key         INTEGER         NOT NULL PRIMARY KEY,
+    nome                VARCHAR(200)    NOT NULL,
+    categoria           VARCHAR(100),
+    safra               VARCHAR(10),
+    regiao              VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS dim_produto_categoria (
+    produto_categoria_key INTEGER       NOT NULL PRIMARY KEY,
+    tipo                          VARCHAR(100)  NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dim_metodo_pagamento (
+    metodo_pagamento_key INTEGER         NOT NULL PRIMARY KEY,
+    tipo_metodo          VARCHAR(100)    NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dim_tipo_sentimento (
+    tipo_sentimento_key  INTEGER         NOT NULL PRIMARY KEY,
+    sentimento           VARCHAR(50)     NOT NULL,
+    classificacao        VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS dim_source (
+    source_key           INTEGER         NOT NULL PRIMARY KEY,
+    nome                 VARCHAR(100)    NOT NULL
+);
+
+-- FACTS
+CREATE TABLE IF NOT EXISTS ft_vendas (
+    venda_date_key          INTEGER         NOT NULL REFERENCES dim_date(date_key),
+    utilizador_key             INTEGER         NOT NULL REFERENCES dim_utilizador(utilizador_key),
+    produto_key             INTEGER         NOT NULL REFERENCES dim_produto(produto_key),
+    produto_categoria_key   INTEGER         NOT NULL REFERENCES dim_produto_categoria(produto_categoria_key),
+    metodo_pagamento_key    INTEGER         NOT NULL REFERENCES dim_metodo_pagamento(metodo_pagamento_key),
+    valor_venda             NUMERIC(18,2)   NOT NULL,
+    valor_desconto          NUMERIC(18,2)   NOT NULL DEFAULT 0,
+    valor_iva               NUMERIC(18,2)   NOT NULL,
+    PRIMARY KEY (venda_date_key, utilizador_key, produto_key, produto_categoria_key, metodo_pagamento_key)
+);
+
+CREATE TABLE IF NOT EXISTS ft_sentimento (
+    sentimento_date_key INTEGER         NOT NULL REFERENCES dim_date(date_key),
+    utilizador_key         INTEGER         NOT NULL REFERENCES dim_utilizador(utilizador_key),
+    tipo_sentimento_key INTEGER         NOT NULL REFERENCES dim_tipo_sentimento(tipo_sentimento_key),
+    source_key          INTEGER         NOT NULL REFERENCES dim_source(source_key),
+    score               NUMERIC(5,4),
+    PRIMARY KEY (sentimento_date_key, utilizador_key, tipo_sentimento_key, source_key)
+);
+
+-- Indexes (se não existirem)
+CREATE INDEX IF NOT EXISTS idx_ft_vendas_utilizador      ON ft_vendas(utilizador_key);
+CREATE INDEX IF NOT EXISTS idx_ft_vendas_produto      ON ft_vendas(produto_key);
+CREATE INDEX IF NOT EXISTS idx_ft_vendas_data         ON ft_vendas(venda_date_key);
+CREATE INDEX IF NOT EXISTS idx_ft_sentimento_utilizador  ON ft_sentimento(utilizador_key);
+CREATE INDEX IF NOT EXISTS idx_ft_sentimento_data     ON ft_sentimento(sentimento_date_key);
