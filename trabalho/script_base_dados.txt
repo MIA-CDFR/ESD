@@ -1,36 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Cria/repõe o esquema ESD/Wine em PostgreSQL via Python.
-Uso:
-    python setup_db.py
-Config:
-    Define as variáveis de ambiente abaixo ou ajusta os defaults no código.
-"""
-
-import os
-import sys
-import psycopg2
-from contextlib import closing
-import database
-
-# ----------------------------
-# 1) Config da ligação (ENV ou defaults)
-# ----------------------------
-
-DADOS_DB_DATABASE = database.DB_CONFIG_DATABASE
-PG_DB_DATABASE   = os.getenv("PGDATABASE", DADOS_DB_DATABASE['dbname'])
-
-DADOS_DB = database.DB_CONFIG
-PG_HOST = os.getenv("PGHOST", DADOS_DB['host'])
-PG_PORT = int(os.getenv("PGPORT", DADOS_DB['port']))
-PG_DB   = os.getenv("PGDATABASE", DADOS_DB['dbname'])
-PG_USER = os.getenv("PGUSER", DADOS_DB['user'])
-PG_PASS = os.getenv("PGPASSWORD", DADOS_DB['password'])
-
-# ----------------------------
-# 2) SQL do esquema (PostgreSQL)
-# ----------------------------
-SQL_SCHEMA_DATABASE = r"""
 CREATE DATABASE esd_wine
     WITH
     OWNER = postgres
@@ -41,10 +8,13 @@ CREATE DATABASE esd_wine
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False
-"""
 
-SQL_SCHEMA = r"""
--- Drop em ordem para evitar FKs/dep. (é ambiente de dev/demo)
+
+
+
+
+
+
 DROP TABLE IF EXISTS feeds_rss                          CASCADE;
 DROP TABLE IF EXISTS feeds_rss_processada               CASCADE;
 DROP TABLE IF EXISTS file_csv_comentario                CASCADE;
@@ -238,30 +208,3 @@ CREATE TABLE venda_processada (
     CONSTRAINT venda_fkey FOREIGN KEY (venda_id)
         REFERENCES venda (venda_id) MATCH SIMPLE
 );
-"""
-
-# ----------------------------
-# 3) Runner
-# ----------------------------
-def connect_DATABASE():
-    dsn_database = f"host={PG_HOST} port={PG_PORT} dbname={PG_DB_DATABASE} user={PG_USER} password={PG_PASS}"
-    print(dsn_database)
-    return psycopg2.connect(dsn_database)
-
-def connect():
-    dsn = f"host={PG_HOST} port={PG_PORT} dbname={PG_DB} user={PG_USER} password={PG_PASS}"
-    return psycopg2.connect(dsn)
-
-def run_schema():
-
-    with closing(connect_DATABASE()) as connDB, closing(connDB.cursor()) as curDB:
-        connDB.autocommit = True  # IMPORTANTE: Ativar autocommit
-        curDB.execute(SQL_SCHEMA_DATABASE)
-        connDB.commit()
-
-    with closing(connect()) as conn, closing(conn.cursor()) as cur:
-        conn.autocommit = True  # IMPORTANTE: Ativar autocommit
-        cur.execute(SQL_SCHEMA)
-        conn.commit()
-
-    print("Esquema de Database/Postgres (esd_wine) criado/repôsto com sucesso.")
