@@ -130,7 +130,7 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
                 rowd = {select_cols[i]: row[i] for i in range(len(select_cols))}
 
                 email = ""
-                utilizador_id = 0
+                utilizador_id = 1
 
                 # 1. Obter a data e hora atual (com fuso horário ou sem) 
                 #   Exemplo: 2025-10-31 00:05:24.130000
@@ -307,7 +307,7 @@ def processar_venda_processada_e_inserir_sentimento(database,
                 SELECT {cols}
                   FROM {src}
                  WHERE applied_tas = false
-                 ORDER BY id ASC
+                 ORDER BY venda_processada_id ASC
             """).format(
                 cols=sql.SQL(", ").join(map(sql.Identifier, select_cols)),
                 src=sql.Identifier(table_processada)

@@ -354,15 +354,15 @@ def get_userid_by_email(database, email: str) -> int:
     """
     Procura o utilizador pelo email na tabela 'utilizador'.
     Se existir, retorna o utilizador_id (int).
-    Se não existir, retorna 0.
+    Se não existir, retorna 1 ("desconhecido") porque se devolver 0 dá erro de "foreign key".
     """
     if not email:
-        return 0
+        return 1
 
     conn = database.connect_database()
     if conn is None:
         print("Falha na conexão à base de dados")
-        return 0
+        return 1
 
     try:
         with closing(conn.cursor()) as cur:
@@ -377,6 +377,6 @@ def get_userid_by_email(database, email: str) -> int:
 
     except Exception as e:
         print(f"[get_userid_by_email] Erro: {e}")
-        return 0
+        return 1
     finally:
         database.close_database(conn)
