@@ -54,11 +54,9 @@ def extract_vendas_from_mongodb_toDatabase():
             if '_id' in doc:
                 doc['_id'] = str(doc['_id'])
 
-        print(f"Cheguei a 3_extracao_mongodb.py, ANTES df = pd.DataFrame(list_of_documents)")      # APAGAR
         # Converte a lista de dicionários para um DataFrame do Pandas
         df = pd.DataFrame(list_of_documents)
         print(f"Carregados do MongoDB {len(df)} documentos da coleção '{collection}'.")
-        print(f"Cheguei a 3_extracao_mongodb.py, APÓS df = pd.DataFrame(list_of_documents)")      # APAGAR
         
         database.save_toDatabase(df, config.DATABASE_TABLENAME_VENDAS)
         mark_as_extracted(collection)

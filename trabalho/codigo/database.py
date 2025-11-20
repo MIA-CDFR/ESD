@@ -54,7 +54,6 @@ def close_database(conn):
 # ===============================================
 
 def save_toDatabase(df, table_name):
-    print(f"Cheguei a database.py, para save_toDatabase")      # APAGAR
 
     if table_name == config.DATABASE_TABLENAME_FEEDS_RSS:
         save_toDatabase_FeedsRSS(df, table_name)
@@ -150,13 +149,12 @@ def save_toDatabase_FilesCSV(df, table_name, batch_size=config.DATABASE_BATCH_SI
         total_inseridos = 0
         
         # Colunas que vamos inserir (SEM recordid e created_at - são automáticos)
-        colunas = "commentid, utilizador_id, produto_id, loja_id, datahora, texto"
+        colunas = "utilizador_id, produto_id, loja_id, datahora, texto"
 
         """
         -- COMENTÁRIOS (CSV)
         CREATE TABLE file_csv_comentarios (
             id                      SERIAL PRIMARY KEY,
-            commentid               INTEGER,
             utilizador_id           INTEGER,
             produto_id              INTEGER,
             loja_id                 INTEGER,
@@ -175,10 +173,9 @@ def save_toDatabase_FilesCSV(df, table_name, batch_size=config.DATABASE_BATCH_SI
             params = []
             
             for index, row in batch.iterrows():
-                # 6 placeholders para as 6 colunas
-                valores_list.append("(%s, %s, %s, %s, %s, %s)")
+                # 6 placeholders para as 5 colunas
+                valores_list.append("(%s, %s, %s, %s, %s)")
                 params.extend([
-                    row['commentid'],
                     row['utilizador_id'],
                     row['produto_id'],
                     row['loja_id'],
@@ -319,7 +316,6 @@ def save_toDatabase_Vendas(df, table_name, batch_size=config.DATABASE_BATCH_SIZE
             params = []
             
             for index, row in batch.iterrows():
-                print(f"row['metodo_pagamento_id']: {row['metodo_pagamento_id']}")      # APAGAR
                 # 8 placeholders para as 8 colunas
                 valores_list.append("(%s, %s, %s, %s, %s, %s, %s, %s)")
                 params.extend([

@@ -41,7 +41,7 @@ def ingest_to_mongodb(source):
             # Chama a função load_csv do seu módulo files.py
             #   Devolve um DataFrame
             df = file.load_csv(source_file_path)
-
+            
             # tenho de converter para list porque é formato aceite pelo MongoDB
             #   E no caso, df = file.load_csv(source_file_path) é um DataFrame
             documents = df.to_dict('records')

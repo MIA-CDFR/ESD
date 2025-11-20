@@ -121,7 +121,7 @@ def processar_varias_tabelas_processada_e_inserir_sentimento(database,
             rows = cur.fetchall()
 
         if not rows:
-            print(f"Não há registos por processar/aplicar TAS em {table_processada}}.")
+            print(f"Não há registos por processar/aplicar TAS em {table_processada}.")
             return 0
 
         with closing(conn.cursor()) as cur:

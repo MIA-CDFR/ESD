@@ -31,6 +31,7 @@ PG_PASS = os.getenv("PGPASSWORD", DADOS_DB['password'])
 # 2) SQL do esquema (PostgreSQL)
 # ----------------------------
 SQL_SCHEMA_DATABASE = r"""
+
 CREATE DATABASE esd_wine
     WITH
     OWNER = postgres
@@ -273,6 +274,7 @@ CREATE TABLE utilizador (
 );
 
 INSERT INTO utilizador (nome, email, data_nascimento, genero, regiao) VALUES
+  ('Desconhecido','','01-01-1900','D','D'),
   ('Carlos','ccj.gmr@gmail.com','13-10-1977','M','Trás Montes'),
   ('Rui','rmmmrodrigues@gmail.com','01-05-1977','M','Minho'),
   ('Filipa','filipapereira306@gmail.com','10-06-2000','F','Minho'),
