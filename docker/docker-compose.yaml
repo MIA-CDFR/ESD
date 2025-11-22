@@ -1,0 +1,51 @@
+services:
+  mongo-wine-db:
+    image: mongo:6.0
+    container_name: mongo-wine-db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - mgdata:/data/db
+  postgres-wine-db:
+    image: postgres:latest
+    container_name: postgres-wine-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./psql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./dump:/tmp/dump
+  etl-dw:
+    build: ../
+    container_name: etl-dw
+    depends_on:
+      - postgres-wine-db
+    environment:
+      BRONZE_DB_TYPE: mongodb
+      BRONZE_DB_HOST: mongo-wine-db
+      BRONZE_DB_PORT: 27017
+      BRONZE_DB_USER: mongo
+      BRONZE_DB_PASS: admin
+      BRONZE_DB_NAME: raw_esd_wine
+      SILVER_DB_TYPE: postgresql
+      SILVER_DB_HOST: postgres-wine-db
+      SILVER_DB_PORT: 5432
+      SILVER_DB_USER: postgres
+      SILVER_DB_PASS: admin
+      SILVER_DB_NAME: esd_wine
+      GOLD_DB_TYPE: postgresql
+      GOLD_DB_HOST: postgres-wine-db
+      GOLD_DB_PORT: 5432
+      GOLD_DB_USER: postgres
+      GOLD_DB_PASS: admin
+      GOLD_DB_NAME: esd_wine_dw
+
+volumes:
+  pgdata:
+  mgdata:
