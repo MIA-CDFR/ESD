@@ -16,7 +16,10 @@
       </datamart>
     </datamarts>
   </datawarehouse>
-  <conformedHierarchies />
+  <conformedHierarchies>
+    <conformedHierarchy id="edf9868e-9995-40b8-a175-f9c6266f8765" />
+    <conformedHierarchy id="da89cec1-47a0-4354-9eaa-6b76e0d0aac3" />
+  </conformedHierarchies>
   <areas>
     <area name="Datamart" id="46528554-8f6d-4bad-aecd-620d4a4aaaba">
       <factSchemas>
