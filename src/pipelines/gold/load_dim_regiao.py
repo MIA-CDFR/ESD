@@ -1,7 +1,7 @@
 from sqlmodel import select
 
 from models.silver import Produto
-from models.gold import DimProdutoCategoria
+from models.gold import DimRegiao
 
 from utils.database import get_session, get_silver_session
 
@@ -16,17 +16,16 @@ def run_load() -> None:
         with next(get_session()) as session:
             for row in silver_data:
                 _existent = session.exec(
-                    select(DimProdutoCategoria).where(
-                        DimProdutoCategoria.tipo==row.regiao
+                    select(DimRegiao).where(
+                        DimRegiao.nome_regiao==row.regiao
                     )
                 ).first()
                 if _existent:
                     continue
 
-                dim = DimProdutoCategoria(
-                    tipo=row.regiao,
+                dim = DimRegiao(
+                    nome_regiao=row.regiao,
                 )
-
 
                 batch.append(dim)
 

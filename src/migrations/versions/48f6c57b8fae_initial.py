@@ -1,8 +1,8 @@
 """initial
 
-Revision ID: 33b2597537e5
+Revision ID: 48f6c57b8fae
 Revises: 
-Create Date: 2025-11-22 01:23:12.311994
+Create Date: 2025-11-24 22:43:44.401839
 
 """
 from typing import Sequence, Union
@@ -14,7 +14,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '33b2597537e5'
+revision: str = '48f6c57b8fae'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -48,11 +48,6 @@ def upgrade() -> None:
     sa.Column('safra', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('regiao', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.PrimaryKeyConstraint('produto_key')
-    )
-    op.create_table('dim_produto_categoria',
-    sa.Column('produto_categoria_key', sa.Integer(), nullable=False),
-    sa.Column('tipo', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.PrimaryKeyConstraint('produto_categoria_key')
     )
     op.create_table('dim_regiao',
     sa.Column('regiao_key', sa.Integer(), nullable=False),
@@ -102,7 +97,7 @@ def upgrade() -> None:
     sa.Column('valor_desconto', sa.Float(), nullable=False),
     sa.Column('valor_iva', sa.Float(), nullable=False),
     sa.ForeignKeyConstraint(['metodo_pagamento_key'], ['dim_metodo_pagamento.metodo_pagamento_key'], ),
-    sa.ForeignKeyConstraint(['produto_categoria_key'], ['dim_produto_categoria.produto_categoria_key'], ),
+    sa.ForeignKeyConstraint(['produto_categoria_key'], ['dim_regiao.regiao_key'], ),
     sa.ForeignKeyConstraint(['produto_key'], ['dim_produto.produto_key'], ),
     sa.ForeignKeyConstraint(['utilizador_key'], ['dim_utilizador.utilizador_key'], ),
     sa.ForeignKeyConstraint(['venda_date_key'], ['dim_date.date_key'], ),
@@ -120,7 +115,6 @@ def downgrade() -> None:
     op.drop_table('dim_tipo_sentimento')
     op.drop_table('dim_source')
     op.drop_table('dim_regiao')
-    op.drop_table('dim_produto_categoria')
     op.drop_table('dim_produto')
     op.drop_table('dim_metodo_pagamento')
     op.drop_table('dim_date')
