@@ -4,13 +4,6 @@
       <datamart name="Datamart" id="aaf1a054-39d3-4b51-bbd9-290d3e81dec2">
         <factschemas>
           <factschema id="9db6cc50-62b0-4da8-b0ca-7907c253aa27" />
-          <factschema id="3e067a09-fb96-44b7-8c5e-d4b42569b869" />
-          <factschema id="f7bceaf4-3361-4c53-8b5e-d42967f759bc" />
-          <factschema id="91c04b4f-2887-43ca-842f-d51cc0763b41" />
-          <factschema id="e2f56466-cebd-4cb4-ad11-b58b7b30ff79" />
-          <factschema id="1601db7d-52b4-4b23-8263-c94ad62ad6dc" />
-          <factschema id="2a1cce10-c4a9-42b2-b6bb-fed615fb4f23" />
-          <factschema id="81bd5e9c-b685-4f61-a8e8-ae79841f7aa4" />
           <factschema id="548d9507-24d5-46d1-b952-88ca96b6efb6" />
         </factschemas>
       </datamart>
@@ -24,13 +17,6 @@
     <area name="Datamart" id="46528554-8f6d-4bad-aecd-620d4a4aaaba">
       <factSchemas>
         <factschema id="9db6cc50-62b0-4da8-b0ca-7907c253aa27" />
-        <factschema id="3e067a09-fb96-44b7-8c5e-d4b42569b869" />
-        <factschema id="f7bceaf4-3361-4c53-8b5e-d42967f759bc" />
-        <factschema id="91c04b4f-2887-43ca-842f-d51cc0763b41" />
-        <factschema id="e2f56466-cebd-4cb4-ad11-b58b7b30ff79" />
-        <factschema id="1601db7d-52b4-4b23-8263-c94ad62ad6dc" />
-        <factschema id="2a1cce10-c4a9-42b2-b6bb-fed615fb4f23" />
-        <factschema id="81bd5e9c-b685-4f61-a8e8-ae79841f7aa4" />
         <factschema id="548d9507-24d5-46d1-b952-88ca96b6efb6" />
       </factSchemas>
     </area>
