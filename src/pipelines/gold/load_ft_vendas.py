@@ -1,7 +1,7 @@
 from sqlmodel import select
 
 from models.silver import MetodoPagamento, Produto, Venda, Utilizador
-from models.gold import DimMetodoPagamento, DimProduto, DimProdutoCategoria, DimUtilizador, FtVendas
+from models.gold import DimMetodoPagamento, DimProduto, DimRegiao, DimUtilizador, FtVendas
 
 from utils.database import get_session, get_silver_session
 
@@ -30,9 +30,9 @@ def run_load() -> None:
                     )
                 ).first()
 
-                dim_produto_categoria = session.exec(
-                    select(DimProdutoCategoria).where(
-                        DimProdutoCategoria.tipo==produto.regiao,
+                dim_regiao = session.exec(
+                    select(DimRegiao).where(
+                        DimRegiao.nome_regiao==produto.regiao,
                     )
                 ).first()
 
@@ -49,7 +49,7 @@ def run_load() -> None:
                         FtVendas.venda_date_key==int(row.datahora.strftime("%Y%m%d")),
                         FtVendas.utilizador_key==dim_utilizador.utilizador_key,
                         FtVendas.produto_key==dim_produto.produto_key,
-                        FtVendas.produto_categoria_key==dim_produto_categoria.produto_categoria_key,
+                        FtVendas.produto_categoria_key==dim_regiao.regiao_key,
                         FtVendas.metodo_pagamento_key==dim_metodo_pagamento.metodo_pagamento_key,
                     )
                 ).first()
@@ -61,11 +61,11 @@ def run_load() -> None:
                     venda_date_key=int(row.datahora.strftime("%Y%m%d")),
                     utilizador_key=dim_utilizador.utilizador_key,
                     produto_key=dim_produto.produto_key,
-                    produto_categoria_key=dim_produto_categoria.produto_categoria_key,
+                    produto_categoria_key=dim_regiao.regiao_key,
                     metodo_pagamento_key=dim_metodo_pagamento.metodo_pagamento_key,
-                    valor_venda=row.quantidade + row.valor_unitario,
+                    valor_venda=row.quantidade * row.valor_unitario,
                     valor_desconto=0,
-                    valor_iva=(row.quantidade + row.valor_unitario) * 0.23,
+                    valor_iva=(row.quantidade * row.valor_unitario) * 0.23,
                 )
 
                 batch.append(dim)
