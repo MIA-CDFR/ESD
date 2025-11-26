@@ -27,7 +27,6 @@ def run_load() -> None:
                     tipo_metodo=row.metodo_pagamento,
                 )
 
-
                 batch.append(dim)
 
                 if len(batch) >= 1000:
