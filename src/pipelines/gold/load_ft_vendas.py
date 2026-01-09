@@ -49,7 +49,7 @@ def run_load() -> None:
                         FtVendas.venda_date_key==int(row.datahora.strftime("%Y%m%d")),
                         FtVendas.utilizador_key==dim_utilizador.utilizador_key,
                         FtVendas.produto_key==dim_produto.produto_key,
-                        FtVendas.produto_categoria_key==dim_regiao.regiao_key,
+                        FtVendas.regiao_key==dim_regiao.regiao_key,
                         FtVendas.metodo_pagamento_key==dim_metodo_pagamento.metodo_pagamento_key,
                     )
                 ).first()
