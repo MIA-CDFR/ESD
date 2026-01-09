@@ -5,8 +5,8 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: mongo
-      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
     volumes:
       - mgdata:/data/db
   postgres-wine-db:
@@ -30,9 +30,9 @@ services:
       BRONZE_DB_TYPE: mongodb
       BRONZE_DB_HOST: mongo-wine-db
       BRONZE_DB_PORT: 27017
-      BRONZE_DB_USER: mongo
-      BRONZE_DB_PASS: admin
-      BRONZE_DB_NAME: raw_esd_wine
+      BRONZE_DB_USER: admin
+      BRONZE_DB_PASS: admin123
+      BRONZE_DB_NAME: esd_wine
       SILVER_DB_TYPE: postgresql
       SILVER_DB_HOST: postgres-wine-db
       SILVER_DB_PORT: 5432

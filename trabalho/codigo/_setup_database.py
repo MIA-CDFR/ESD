@@ -274,11 +274,11 @@ CREATE TABLE utilizador (
 );
 
 INSERT INTO utilizador (nome, email, data_nascimento, genero, regiao) VALUES
-  ('Desconhecido','','01-01-1900','D','D'),
-  ('Carlos','ccj.gmr@gmail.com','13-10-1977','M','Trás Montes'),
-  ('Rui','rmmmrodrigues@gmail.com','01-05-1977','M','Minho'),
-  ('Filipa','filipapereira306@gmail.com','10-06-2000','F','Minho'),
-  ('Diego','diegojeffersonms@gmail.com','15-12-1990','M','Brasil');
+  ('Desconhecido','','1900-01-01-','D','D'),
+  ('Carlos','ccj.gmr@gmail.com','1977-10-13','M','Trás Montes'),
+  ('Rui','rmmmrodrigues@gmail.com','1977-05-01','M','Minho'),
+  ('Filipa','filipapereira306@gmail.com','2000-06-10','F','Minho'),
+  ('Diego','diegojeffersonms@gmail.com','1990-12-15','M','Brasil');
 
 -- UTILIZADOR_EMAIL
 CREATE TABLE utilizador_email (
@@ -356,10 +356,10 @@ def connect():
 
 def run_schema():
 
-    with closing(connect_DATABASE()) as connDB, closing(connDB.cursor()) as curDB:
-        connDB.autocommit = True  # IMPORTANTE: Ativar autocommit
-        curDB.execute(SQL_SCHEMA_DATABASE)
-        connDB.commit()
+    # with closing(connect_DATABASE()) as connDB, closing(connDB.cursor()) as curDB:
+    #     connDB.autocommit = True  # IMPORTANTE: Ativar autocommit
+    #     curDB.execute(SQL_SCHEMA_DATABASE)
+    #     connDB.commit()
 
     with closing(connect()) as conn, closing(conn.cursor()) as cur:
         conn.autocommit = True  # IMPORTANTE: Ativar autocommit
